@@ -1,6 +1,6 @@
-name: daelim_project
+name: "202030301김동준"
 description: "대림대학교 2024년 3학년 2학기 프로젝트"
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -15,7 +15,7 @@ dependencies:
   google_fonts: ^6.2.1
 
   # NOTE: Core
-  easy_extension: 
+  easy_extension:
     git:
       url: https://github.com/scadasystems/Easy-Extension.git
   flex_color_scheme: ^7.3.1
