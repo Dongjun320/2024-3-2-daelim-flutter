@@ -43,8 +43,24 @@ class AuthData {
 
   String toJson() => json.encode(toMap());
 
-  factory AuthData.fromJson(String source) => AuthData.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory AuthData.fromJson(String source) =>
+      AuthData.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() => 'AuthData(tokenType: $tokenType, token: $token, expiresAt: $expiresAt)';
+  String toString() =>
+      'AuthData(tokenType: $tokenType, token: $token, expiresAt: $expiresAt)';
+
+  @override
+  bool operator ==(covariant AuthData other) {
+    if (identical(this, other)) return true;
+
+    return other.token == token &&
+        other.tokenType == tokenType &&
+        other.expiresAt == expiresAt;
+  }
+
+  @override
+  int get hashCode => token.hashCode ^ tokenType.hashCode ^ expiresAt.hashCode;
+
+  get accessToken => null;
 }
