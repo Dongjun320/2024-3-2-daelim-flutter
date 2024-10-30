@@ -7,10 +7,25 @@ import 'package:daelim_project/common/scaffold/app_scaffold.dart';
 import 'package:daelim_project/config.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
-  Future<Map<String, dynamic>> fetchUserData() async {
+
+  @override
+  State<SettingScreen> createState() => _SettingScreenState();
+  }
+class _SettingScreenState extends State<SettingScreen> {
+  String? _name;
+  String? _studentNumber;
+  String? _profileImageUrl;
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+   Future<void> _fetchUserData() async {
     final token = StorageHelper.authData!.accessToken;
     final tokenType = StorageHelper.authData!.tokenType.firstUpperCase;
     final response = await http.get(
@@ -21,8 +36,60 @@ class SettingScreen extends StatelessWidget {
     );
     final statuscode = response.statusCode;
     final body = utf8.decode(response.bodyBytes);
-    if (statuscode != 200) throw Exception(body);
-    return jsonDecode(body);
+    //NOTE : 유저 정보 에러 발생
+     if (statusCode != 200) {
+      setState(() {
+        _name = '데이터를 불러올 수 없습니다.';
+        _studentNumber = body;
+        _profileImageUrl = '';
+      });
+      return;
+    }
+    final userData = jsonDecode(body);
+    setState(() {
+      _name = userData['name'];
+      _studentNumber = userData['student_number'];
+      _profileImageUrl = userData['profile_image'];
+    });
+  }
+  /// NOTE: 프로필 이미지 업로드
+  Future<void> _uploadProfileImage() async {
+    if (_profileImageUrl == null || _profileImageUrl?.isEmpty == true) {
+      return;
+    }
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+    if (result == null) return;
+    final imageFile = result.files.single;
+    final imageBytes = imageFile.bytes;
+    final imagePath = imageFile.path;
+    Log.green('이미지 경로: $imagePath / 이미지 바이트: ${imageBytes?.length}');
+    if (imagePath == null) return;
+    final tokenType = StorageHelper.authData!.tokenType.firstUpperCase;
+    final token = StorageHelper.authData!.token;
+    final uploadRequest = http.MultipartRequest(
+      'POST',
+      Uri.parse(setProfileImageUrl),
+    )
+      ..headers.addAll(
+        {
+          HttpHeaders.authorizationHeader: '$tokenType $token',
+        },
+      )
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          imagePath,
+          // contentType: http.MediaType(),
+        ),
+      );
+    Log.green('이미지 업로드');
+    final response = await uploadRequest.send();
+    Log.green('이미지 업로드 결과: ${response.statusCode}');
+    if (response.statusCode != 200) return;
+    _fetchUserData();
+
   }
 
   @override
@@ -31,40 +98,31 @@ class SettingScreen extends StatelessWidget {
       appScren: AppScreen.setting,
       child: Column(
         children: [
-          FutureBuilder(
-              future: fetchUserData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 100),
-                    child: const CircularProgressIndicator(),
-                  );
-                }
-                final err = snapshot.error;
-                final userData = snapshot.data;
-                String name = '';
-                String studentNumber = '';
-                String profileImg = '';
-                if (err != null) {
-                  name = '데이터를 불러올수없습니다';
-                  studentNumber = '$err';
-                }
-                Log.black(userData);
-                if (userData != null) {
-                  name = userData['name'];
-                  studentNumber = userData['student_number'];
-                  profileImg = userData['profile_image'];
-                }
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    backgroundImage: NetworkImage(profileImg),
-                  ),
-                  title: Text(name),
-                  subtitle: Text(studentNumber),
-                );
-              }),
+          ListTile(
+            leading: InkWell(
+              onTap: _uploadProfileImage,
+              child: CircleAvatar(
+                backgroundImage: _profileImageUrl != null //
+                    ? _profileImageUrl!.isNotEmpty
+                        ? NetworkImage(_profileImageUrl!)
+                        : null
+                    : null,
+                child: _profileImageUrl != null //
+                    ? _profileImageUrl!.isEmpty
+                        ? const Icon(Icons.cancel)
+                        : null
+                    : const CircularProgressIndicator(),
+              ),
+            ),
+            title: Text(_name ?? '데이터 로딩 중..'),
+            subtitle: _studentNumber != null //
+                ? Text(
+                    _studentNumber!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                : null,
+          ),
         ],
       ),
     );
