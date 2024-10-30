@@ -9,35 +9,39 @@ import 'package:daelim_project/routes/app_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
 
   @override
   State<SettingScreen> createState() => _SettingScreenState();
-  }
+}
+
 class _SettingScreenState extends State<SettingScreen> {
   String? _name;
   String? _studentNumber;
   String? _profileImageUrl;
+
   @override
   void initState() {
     super.initState();
     _fetchUserData();
   }
 
-   Future<void> _fetchUserData() async {
+  // NOTE: 유저 정보 가져오기
+  Future<void> _fetchUserData() async {
     final token = StorageHelper.authData!.accessToken;
     final tokenType = StorageHelper.authData!.tokenType.firstUpperCase;
+
     final response = await http.get(
       Uri.parse(getUserDataUrl),
       headers: {
         HttpHeaders.authorizationHeader: '$tokenType $token',
       },
     );
-    final statuscode = response.statusCode;
+    final statusCode = response.statusCode;
     final body = utf8.decode(response.bodyBytes);
     //NOTE : 유저 정보 에러 발생
-     if (statusCode != 200) {
+    if (statusCode != 200) {
       setState(() {
         _name = '데이터를 불러올 수 없습니다.';
         _studentNumber = body;
@@ -52,6 +56,7 @@ class _SettingScreenState extends State<SettingScreen> {
       _profileImageUrl = userData['profile_image'];
     });
   }
+
   /// NOTE: 프로필 이미지 업로드
   Future<void> _uploadProfileImage() async {
     if (_profileImageUrl == null || _profileImageUrl?.isEmpty == true) {
@@ -89,7 +94,6 @@ class _SettingScreenState extends State<SettingScreen> {
     Log.green('이미지 업로드 결과: ${response.statusCode}');
     if (response.statusCode != 200) return;
     _fetchUserData();
-
   }
 
   @override
