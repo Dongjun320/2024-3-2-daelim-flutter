@@ -25,8 +25,8 @@ final appRouter = GoRouter(
     ),
     // NOTE: 메인 화면
     GoRoute(
-      path: AppScreen.main.toPath,
-      name: AppScreen.main.name,
+      path: AppScreen.users.toPath,
+      name: AppScreen.users.name,
       pageBuilder: (context, state) => const NoTransitionPage(
         child: MainScreen(),
       ),

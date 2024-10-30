@@ -8,6 +8,9 @@ import 'package:daelim_project/config.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
+// ignore: unused_import
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -29,8 +32,10 @@ class _SettingScreenState extends State<SettingScreen> {
 
   // NOTE: 유저 정보 가져오기
   Future<void> _fetchUserData() async {
-    final token = StorageHelper.authData!.accessToken;
+    final token = StorageHelper.authData!.token;
     final tokenType = StorageHelper.authData!.tokenType.firstUpperCase;
+    Log.green(tokenType);
+    Log.green(token);
 
     final response = await http.get(
       Uri.parse(getUserDataUrl),
@@ -66,13 +71,25 @@ class _SettingScreenState extends State<SettingScreen> {
       type: FileType.image,
     );
     if (result == null) return;
+
     final imageFile = result.files.single;
-    final imageBytes = imageFile.bytes;
+    //final imageBytes = imageFile.bytes;
+    final imageName = imageFile.name;
     final imagePath = imageFile.path;
-    Log.green('이미지 경로: $imagePath / 이미지 바이트: ${imageBytes?.length}');
+    final imageMime = lookupMimeType(imageName) ?? 'image/jpeg';
+
+    //Note: Mime 타입 자르기
+    final mimeSplit = imageMime.split('/');
+    final mimeType = mimeSplit.first;
+    final mimeSubType = mimeSplit.last;
+
+    Log.green('프로필 이미지 업로드: $imageName, $imageMime($mimeType,$mimeSubType)');
+
     if (imagePath == null) return;
+
     final tokenType = StorageHelper.authData!.tokenType.firstUpperCase;
     final token = StorageHelper.authData!.token;
+
     final uploadRequest = http.MultipartRequest(
       'POST',
       Uri.parse(setProfileImageUrl),
@@ -86,14 +103,24 @@ class _SettingScreenState extends State<SettingScreen> {
         await http.MultipartFile.fromPath(
           'image',
           imagePath,
-          // contentType: http.MediaType(),
+          contentType: MediaType(mimeType, mimeSubType),
         ),
       );
     Log.green('이미지 업로드');
+
     final response = await uploadRequest.send();
-    Log.green('이미지 업로드 결과: ${response.statusCode}');
-    if (response.statusCode != 200) return;
+    final uploadResult = await http.Response.fromStream(response);
+
+    Log.green('이미지 업로드 결과: ${uploadResult.statusCode}, ${uploadResult.body}');
+    if (uploadResult.statusCode != 200) return;
     _fetchUserData();
+    // var uri = Uri.https('example.com', 'create');
+    // var request = http.MultipartRequest('POST', uri)
+    //   ..fields['user'] = 'nweiz@google.com'
+    //   ..files.add(await http.MultipartFile.fromPath('package', 'build/package.tar.gz',
+    //       contentType: MediaType('application', 'x-tar')));
+    // var response = await request.send();
+    // if (response.statusCode == 200) print('Uploaded!');
   }
 
   @override

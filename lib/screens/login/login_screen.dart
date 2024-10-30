@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final savedAuthData = StorageHelper.authData;
     Log.green(savedAuthData);
 
-    if (mounted) context.goNamed(AppScreen.main.name);
+    if (mounted) context.goNamed(AppScreen.users.name);
 
     return;
   }

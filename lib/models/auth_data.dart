@@ -1,10 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 class AuthData {
-  final String tokenType;
-  final String token;
-  final DateTime expiresAt;
+  final String tokenType; // 토큰 타입
+  final String token; // 액세스 토큰
+  final DateTime expiresAt; // 만료 시간
 
   AuthData({
     required this.tokenType,
@@ -12,6 +11,7 @@ class AuthData {
     required this.expiresAt,
   });
 
+  // 복사 메서드 (optional)
   AuthData copyWith({
     String? tokenType,
     String? token,
@@ -24,6 +24,7 @@ class AuthData {
     );
   }
 
+  // Map으로 변환
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'token_type': tokenType,
@@ -32,7 +33,7 @@ class AuthData {
     };
   }
 
-  // NOTE: AuthData 로 매핑
+  // Map에서 객체 생성
   factory AuthData.fromMap(Map<String, dynamic> map) {
     return AuthData(
       tokenType: map['token_type'],
@@ -41,26 +42,14 @@ class AuthData {
     );
   }
 
+  // JSON으로 변환
   String toJson() => json.encode(toMap());
 
+  // JSON에서 객체 생성
   factory AuthData.fromJson(String source) =>
       AuthData.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>
       'AuthData(tokenType: $tokenType, token: $token, expiresAt: $expiresAt)';
-
-  @override
-  bool operator ==(covariant AuthData other) {
-    if (identical(this, other)) return true;
-
-    return other.token == token &&
-        other.tokenType == tokenType &&
-        other.expiresAt == expiresAt;
-  }
-
-  @override
-  int get hashCode => token.hashCode ^ tokenType.hashCode ^ expiresAt.hashCode;
-
-  get accessToken => null;
 }
