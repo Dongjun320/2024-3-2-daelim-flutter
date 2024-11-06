@@ -1,8 +1,8 @@
+import 'dart:convert';
+import 'package:daelim_project/config.dart';
+
 class ApiHelper {
   void signIn({required String email, required String password}) async {
-    final email = _emailController.text;
-    final password = _pwController.text;
-
     final loginData = {
       'email': email,
       'password': password,
