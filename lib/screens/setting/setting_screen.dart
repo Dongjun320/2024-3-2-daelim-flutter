@@ -126,7 +126,7 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appScren: AppScreen.setting,
+      appScreen: AppScreen.setting,
       child: Column(
         children: [
           ListTile(

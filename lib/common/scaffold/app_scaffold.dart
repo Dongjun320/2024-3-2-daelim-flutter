@@ -3,13 +3,15 @@ import 'package:daelim_project/common/scaffold/app_navigation_rail.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 
 class AppScaffold extends StatelessWidget {
-  final AppScreen appScren;
+  final AppScreen appScreen;
   final Widget child;
+
   const AppScaffold({
     super.key,
-    required this.appScren,
+    required this.appScreen,
     required this.child,
   });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +19,7 @@ class AppScaffold extends StatelessWidget {
         child: Row(
           children: [
             AppNavigationRail(
-              appScren: appScren,
+              appScren: appScreen, // 철자도 맞추어야 합니다.
             ),
             Expanded(
               child: child,
