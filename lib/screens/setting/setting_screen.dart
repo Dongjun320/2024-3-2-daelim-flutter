@@ -1,5 +1,8 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:convert';
 import 'dart:io';
+import 'package:daelim_project/screens/setting/dialogs/change_password_dialog.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:daelim_project/helpers/storage_helper.dart';
@@ -111,16 +114,19 @@ class _SettingScreenState extends State<SettingScreen> {
     final response = await uploadRequest.send();
     final uploadResult = await http.Response.fromStream(response);
 
-    Log.green('이미지 업로드 결과: ${uploadResult.statusCode}, ${uploadResult.body}');
+    Log.green(
+      '이미지 업로드 결과: ${uploadResult.statusCode}, ${uploadResult.body}',
+    );
     if (uploadResult.statusCode != 200) return;
     _fetchUserData();
-    // var uri = Uri.https('example.com', 'create');
-    // var request = http.MultipartRequest('POST', uri)
-    //   ..fields['user'] = 'nweiz@google.com'
-    //   ..files.add(await http.MultipartFile.fromPath('package', 'build/package.tar.gz',
-    //       contentType: MediaType('application', 'x-tar')));
-    // var response = await request.send();
-    // if (response.statusCode == 200) print('Uploaded!');
+  }
+
+  //Note : 비밀번호 변경 다이얼로그
+  Future<void> _ChangePasswordDalog() async {
+    showDialog(
+      context: context,
+      builder: (context) => const ChangePasswordDialog(),
+    );
   }
 
   @override
@@ -154,6 +160,16 @@ class _SettingScreenState extends State<SettingScreen> {
                   )
                 : null,
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("비밀번호 변경하기"),
+              ElevatedButton(
+                onPressed: _ChangePasswordDalog,
+                child: const Text("변경하기"),
+              )
+            ],
+          )
         ],
       ),
     );

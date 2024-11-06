@@ -19,7 +19,7 @@ class AppScaffold extends StatelessWidget {
         child: Row(
           children: [
             AppNavigationRail(
-              appScren: appScreen, // 철자도 맞추어야 합니다.
+              appScren: appScreen,
             ),
             Expanded(
               child: child,
