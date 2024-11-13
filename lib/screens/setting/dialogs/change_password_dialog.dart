@@ -39,7 +39,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   /// NOTE: 입력란 검증
   /// - Empty Value 체크
   String? _validator(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.isEmpty || value.trim().isEmpty) {
       return '이 입력란을 작성하세요.';
     }
     return null;
@@ -150,6 +150,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 children: ListTile.divideTiles(
                   context: context,
                   tiles: [
+                    //Note: 현재 비밀번호 입력란
                     _buildTextField(
                       formKey: _currentPwFormKey,
                       textController: _currentPwController,
@@ -175,18 +176,30 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                         ),
                       ),
                     ),
+                    //Note: 새 비밀번호 입력란
                     _buildTextField(
                       formKey: _newPwFormKey,
                       textController: _newPwController,
                       hintText: '새 비밀번호',
                       obscureText: _obscureNew,
-                      validator: _validator,
+                      validator: (value) {
+                        final isEmptyValidate = _validator(value);
+
+                        if (isEmptyValidate != null) {
+                          return isEmptyValidate;
+                        }
+                        if (value!.length < 6) {
+                          return '6글자 이상 설정해야합니다.';
+                        }
+                        return null;
+                      },
                       onObscurePressed: () {
                         setState(() {
                           _obscureNew = !_obscureNew;
                         });
                       },
                     ),
+                    //Note: 새 비밀번호 확인 입력란
                     _buildTextField(
                       formKey: _newConfirmPwFormKey,
                       textController: _newConfirmPwController,
