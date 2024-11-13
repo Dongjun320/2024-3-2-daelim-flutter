@@ -1,18 +1,16 @@
-import 'dart:convert';
-
 import 'package:daelim_project/common/widgets/gradient_divider.dart';
 import 'package:daelim_project/config.dart';
 import 'package:daelim_project/enums/sso_enum.dart';
 import 'package:daelim_project/extensions/context_extension.dart';
+import 'package:daelim_project/helpers/api_helper.dart';
 import 'package:daelim_project/helpers/storage_helper.dart';
-import 'package:daelim_project/models/auth_data.dart';
+import 'package:daelim_project/routes/app_screen.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore: unused_import
 import 'package:http/http.dart' as http;
-import 'package:daelim_project/routes/app_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,37 +39,25 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final password = _pwController.text;
 
-    final loginData = {
-      'email': email,
-      'password': password,
-    };
-
-    final response = await http.post(
-      Uri.parse(getTokenUrl),
-      body: jsonEncode(loginData),
+    // NOTE: AuthData 로 변환
+    final authData = await ApiHelper.signIn(
+      email: email,
+      password: password,
     );
 
-    final statusCode = response.statusCode;
-    final body = utf8.decode(response.bodyBytes);
-
-    if (statusCode != 200) {
+    if (authData == null) {
       if (mounted) {
         context.showSnackBar(
-          content: Text(body),
+          content: const Text('로그인을 실패했습니다.'),
         );
       }
       return;
     }
 
-    // NOTE: AuthData 로 변환
-    final authData = AuthData.fromMap(jsonDecode(body));
     await StorageHelper.setAuthData(authData);
-    final savedAuthData = StorageHelper.authData;
-    Log.green(savedAuthData);
 
+    // TODO: 화면 이동
     if (mounted) context.goNamed(AppScreen.users.name);
-
-    return;
   }
 
   // NOTE: SSO 로그인 버튼
