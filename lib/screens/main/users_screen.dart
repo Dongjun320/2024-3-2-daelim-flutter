@@ -1,5 +1,6 @@
 import 'package:daelim_project/common/scaffold/app_scaffold.dart';
 import 'package:daelim_project/config.dart';
+import 'package:daelim_project/helpers/api_helper.dart';
 import 'package:daelim_project/models/user_data.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 import 'package:easy_extension/easy_extension.dart';
@@ -8,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
+
   @override
   State<UsersScreen> createState() => _UsersScreenState();
 }
@@ -15,15 +17,18 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen> {
   final List<UserData> _dummyDataList = List.generate(20, (i) {
     final index = i + 1;
+
     return UserData(
       id: '$index',
       name: '유저 $index',
       email: '$index@daelim.ac.kr',
       studentNumber: '$index',
-      profileImageUrl: defaultProfileImageUrl,
+      profileImageUrl: Config.image.defaultProfile,
     );
   });
-  List<UserData> _searchedDataList = [];
+  List<UserData> _users = [];
+  List<UserData> _searchedUsers = [];
+
   final _defaultInputBorder = const OutlineInputBorder(
     borderSide: BorderSide(
       color: Color(0xFFE4E4E7),
@@ -32,16 +37,28 @@ class _UsersScreenState extends State<UsersScreen> {
       Radius.circular(10),
     ),
   );
+
   @override
   void initState() {
     super.initState();
-    _searchedDataList = _dummyDataList;
+    // _searchedDataList = _dummyDataList;
+    // _searchedDataList = _fetchUserList();
+    _fetchUserList();
+  }
+
+  /// NOTE: 유저 목록 가져오기
+  Future<void> _fetchUserList() async {
+    _users = await ApiHelper.fetchUserList();
+
+    setState(() {
+      _searchedUsers = _users;
+    });
   }
 
   // NOTE: 유저 검색
   void _onSearch(String value) {
     setState(() {
-      _searchedDataList = _dummyDataList
+      _searchedUsers = _users
           .where(
             (e) => e.name.toLowerCase().contains(value.toLowerCase()),
           )
@@ -51,6 +68,8 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userCount = _searchedUsers.length;
+
     return AppScaffold(
       appScreen: AppScreen.users,
       child: Column(
@@ -62,14 +81,16 @@ class _UsersScreenState extends State<UsersScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // NOTE: 유저 목록 타이틀
-                const Text(
-                  '유저 목록',
-                  style: TextStyle(
+                Text(
+                  '유저 목록 ($userCount)',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 28,
                   ),
                 ),
+
                 15.heightBox,
+
                 // NOTE: 검색바
                 TextField(
                   onChanged: _onSearch,
@@ -89,7 +110,7 @@ class _UsersScreenState extends State<UsersScreen> {
             ),
           ),
           const Divider(),
-          if (_searchedDataList.isEmpty)
+          if (_searchedUsers.isEmpty)
             // NOTE: 검색 결과 없음
             Container(
               alignment: Alignment.center,
@@ -103,10 +124,11 @@ class _UsersScreenState extends State<UsersScreen> {
             // NOTE: 유저 리스트뷰
             Expanded(
               child: ListView.separated(
-                itemCount: _searchedDataList.length,
+                itemCount: _searchedUsers.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
-                  final dummy = _searchedDataList[index];
+                  final dummy = _searchedUsers[index];
+
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: const Color(0xFFEAEAEA),
