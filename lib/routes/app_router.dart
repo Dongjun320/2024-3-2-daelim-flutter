@@ -1,5 +1,6 @@
 import 'package:daelim_project/helpers/storage_helper.dart';
 import 'package:daelim_project/routes/app_screen.dart';
+import 'package:daelim_project/screens/chat/chat_screen.dart';
 import 'package:daelim_project/screens/login/login_screen.dart';
 import 'package:daelim_project/screens/main/users_screen.dart';
 import 'package:daelim_project/screens/rooms/rooms_screen.dart';
@@ -45,6 +46,21 @@ final appRouter = GoRouter(
         child: RoomsScreen(),
       ),
     ),
+    // NOTE: 채팅 화면
+    GoRoute(
+        path: '${AppScreen.chat.toPath}/:roomId',
+        name: AppScreen.chat.name,
+        pageBuilder: (context, state) {
+          final roomId = state.pathParameters['roomId'];
+
+          Log.green('채팅화면 전환: $roomId');
+
+          return NoTransitionPage(
+            child: ChatScreen(
+              roomId: roomId!,
+            ),
+          );
+        }),
     // NOTE: 설정 화면
     GoRoute(
       path: AppScreen.setting.toPath,
