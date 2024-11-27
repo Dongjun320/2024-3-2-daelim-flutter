@@ -20,7 +20,7 @@ class AppScaffold extends StatelessWidget {
       body: SafeArea(
         child: Row(
           children: [
-            AppNavigationRail(appScren: appScreen),
+            AppNavigationRail(appScreen: appScreen),
             Expanded(
               child: Column(
                 children: [
