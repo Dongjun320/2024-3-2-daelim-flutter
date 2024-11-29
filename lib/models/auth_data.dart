@@ -5,12 +5,14 @@ class AuthData {
   final String token; // 액세스 토큰
   final DateTime expiresAt; // 만료 시간
   final String email; // 이메일
+  final String userId;
 
   AuthData({
     required this.email,
     required this.tokenType,
     required this.token,
     required this.expiresAt,
+    required this.userId,
   });
 
   // 복사 메서드 (optional)
@@ -19,12 +21,14 @@ class AuthData {
     String? tokenType,
     String? token,
     DateTime? expiresAt,
+    String? userId,
   }) {
     return AuthData(
       email: email ?? this.email,
       tokenType: tokenType ?? this.tokenType,
       token: token ?? this.token,
       expiresAt: expiresAt ?? this.expiresAt,
+      userId:  userId ?? this.userId
     );
   }
 
@@ -45,6 +49,7 @@ class AuthData {
       tokenType: map['token_type'],
       token: map['access_token'],
       expiresAt: DateTime.fromMillisecondsSinceEpoch(map['expires_at']),
+      userId: map['user_Id']
     );
   }
 

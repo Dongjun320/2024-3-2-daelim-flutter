@@ -1,5 +1,3 @@
-import 'package:daelim_project/api_error.dart';
-import 'package:daelim_project/common/scaffold/app_navigation_rail.dart';
 import 'package:daelim_project/common/scaffold/app_scaffold.dart';
 import 'package:daelim_project/extensions/context_extension.dart';
 import 'package:daelim_project/helpers/api_helper.dart';
